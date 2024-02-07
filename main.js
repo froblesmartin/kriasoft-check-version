@@ -136,6 +136,6 @@ const release = INPUT_FORMAT.replace(/\{pkg\}/gi, head.name)
   .replace(/\{pr_number\}/gi, event.pull_request.number);
 
 // Set the action output values (name, version, release)
-console.log(`::set-output name=name::${head.name}`);
-console.log(`::set-output name=version::${head.version}`);
-console.log(`::set-output name=release::${release}`);
+console.log(`echo "name=${head.name}" >> $GITHUB_OUTPUT`)
+console.log(`echo "version=${head.version}" >> $GITHUB_OUTPUT`)
+console.log(`echo "release=${release}" >> $GITHUB_OUTPUT`)

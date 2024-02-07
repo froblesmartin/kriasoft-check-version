@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check-version test1
+        id: test1
+        uses: ./
+        with:
+          path: tests
+
+      - run: |
+          echo "name: ${{ steps.test1.outputs.name }}"
+          echo "version: ${{ steps.test1.outputs.version }}"
+          echo "release: ${{ steps.test1.outputs.release }}"
+
+      - name: Change file
+        run: echo "FAKE" >> tests/index.js
+
+      - name: Check-version test2
+        id: test2
+        uses: ./
+        with:
+          path: tests
+
+      - run: |
+          echo "name: ${{ steps.test2.outputs.name }}"
+          echo "version: ${{ steps.test2.outputs.version }}"
+          echo "release: ${{ steps.test2.outputs.release }}"
