@@ -20,27 +20,37 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Check-version test1
-        id: test1
+      - name: Fail test
+        continue-on-error: true
+        uses: ./
+        with:
+          path: tests
+
+      - run: npm version patch --force
+        working-directory: ./tests
+
+      - name: Success test
+        id: test
         uses: ./
         with:
           path: tests
 
       - run: |
-          echo "name: ${{ steps.test1.outputs.name }}"
-          echo "version: ${{ steps.test1.outputs.version }}"
-          echo "release: ${{ steps.test1.outputs.release }}"
+          echo "name: ${{ steps.test.outputs.name }}"
+          echo "version: ${{ steps.test.outputs.version }}"
+          echo "release: ${{ steps.test.outputs.release }}"
 
-      - name: Change file
-        run: echo "FAKE" >> tests/index.js
+          if [[ "${{ steps.test.outputs.name }}" != "check-version-test" ]]; then
+            echo "The name output is not correct"
+            exit 1
+          fi
 
-      - name: Check-version test2
-        id: test2
-        uses: ./
-        with:
-          path: tests
+          if [[ "${{ steps.test.outputs.version }}" != "0.0.1" ]]; then
+            echo "The version output is not correct"
+            exit 1
+          fi
 
-      - run: |
-          echo "name: ${{ steps.test2.outputs.name }}"
-          echo "version: ${{ steps.test2.outputs.version }}"
-          echo "release: ${{ steps.test2.outputs.release }}"
+          if [[ "${{ steps.test.outputs.release }}" != "check-version-test_v0.0.1+build.2.zip" ]]; then
+            echo "The release output is not correct"
+            exit 1
+          fi
